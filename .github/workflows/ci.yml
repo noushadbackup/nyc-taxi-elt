@@ -46,7 +46,8 @@ jobs:
         run: dbt build --profiles-dir . --target duckdb
       - name: Re-run the month incrementally (must be idempotent)
         working-directory: dbt
-        run: dbt build --profiles-dir . --target duckdb --vars '{"month": "2021-01-01"}' --select fct_trips+
+        run: |
+          dbt build --profiles-dir . --target duckdb --vars '{"month": "2021-01-01"}' --select fct_trips+
 
   dag:
     runs-on: ubuntu-latest
