@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: dim_zones
+    description: Taxi zones with borough and an airport flag.
+    columns:
+      - name: zone_id
+        data_tests: [unique, not_null]
+
+  - name: fct_trips
+    description: >
+      Valid yellow taxi trips, one row per trip. Incremental by source month;
+      partitioned by pickup month and clustered by zone on BigQuery.
+    columns:
+      - name: trip_id
+        data_tests: [unique, not_null]
+      - name: pickup_date
+        data_tests: [not_null]
+      - name: pickup_zone_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_zones')
+                field: zone_id
+      - name: dropoff_zone_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_zones')
+                field: zone_id
+      - name: payment_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Flex fare', 'Credit card', 'Cash', 'No charge', 'Dispute', 'Unknown', 'Voided trip']
+      - name: trip_duration_seconds
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: 1
+                max_value: 21600
+      - name: trip_distance_miles
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: 0
+                max_value: 200
+                inclusive_min: false
+      - name: total_amount
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: 0
+                max_value: 1000
+
+  - name: agg_daily_borough_metrics
+    description: Daily trip, revenue and tip KPIs per pickup borough.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [pickup_date, pickup_borough]
+    columns:
+      - name: trip_count
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: 1
+
+  - name: mart_data_quality_monthly
+    description: Trip counts per data quality outcome and source month.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [source_month, dq_status]

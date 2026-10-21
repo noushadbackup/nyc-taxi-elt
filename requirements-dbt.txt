@@ -1,0 +1,6 @@
+# dbt lives in its own virtualenv inside the image so its dependencies
+# never fight with Airflow's.
+dbt-core==1.12.5
+dbt-duckdb==1.11.0
+dbt-bigquery==1.12.1
+duckdb==1.5.6

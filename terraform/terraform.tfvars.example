@@ -1,0 +1,2 @@
+project_id = "your-gcp-project-id"
+# billing_account_id = "000000-000000-000000"  # optional: enables the budget alert

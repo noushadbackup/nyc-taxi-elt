@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int_trips_validated
+    description: Every staged trip with its data quality verdict (is_valid, dq_issue).
+    columns:
+      - name: dq_issue
+        description: First data quality rule the trip broke, null when the trip is valid.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - pickup_outside_file_month
+                  - non_positive_duration
+                  - duration_over_6h
+                  - non_positive_distance
+                  - distance_over_200mi
+                  - negative_amount
+                  - total_over_1000
+                  - missing_zone
+
+unit_tests:
+  - name: test_dq_rules_flag_bad_trips
+    description: Each rule catches the trip it is meant for, and a clean trip passes.
+    model: int_trips_validated
+    given:
+      - input: ref('stg_yellow_trips')
+        rows:
+          - {trip_id: ok,        source_month: 2024-01-01, pickup_at: "2024-01-05 10:00:00", dropoff_at: "2024-01-05 10:20:00", trip_distance_miles: 3.2, fare_amount: 18, total_amount: 25, pickup_zone_id: 161, dropoff_zone_id: 236}
+          - {trip_id: old,       source_month: 2024-01-01, pickup_at: "2008-12-31 23:50:00", dropoff_at: "2009-01-01 00:10:00", trip_distance_miles: 3.2, fare_amount: 18, total_amount: 25, pickup_zone_id: 161, dropoff_zone_id: 236}
+          - {trip_id: backwards, source_month: 2024-01-01, pickup_at: "2024-01-05 10:00:00", dropoff_at: "2024-01-05 09:59:00", trip_distance_miles: 3.2, fare_amount: 18, total_amount: 25, pickup_zone_id: 161, dropoff_zone_id: 236}
+          - {trip_id: forever,   source_month: 2024-01-01, pickup_at: "2024-01-05 10:00:00", dropoff_at: "2024-01-05 17:00:00", trip_distance_miles: 3.2, fare_amount: 18, total_amount: 25, pickup_zone_id: 161, dropoff_zone_id: 236}
+          - {trip_id: nowhere,   source_month: 2024-01-01, pickup_at: "2024-01-05 10:00:00", dropoff_at: "2024-01-05 10:20:00", trip_distance_miles: 0,   fare_amount: 18, total_amount: 25, pickup_zone_id: 161, dropoff_zone_id: 236}
+          - {trip_id: refund,    source_month: 2024-01-01, pickup_at: "2024-01-05 10:00:00", dropoff_at: "2024-01-05 10:20:00", trip_distance_miles: 3.2, fare_amount: -18, total_amount: -25, pickup_zone_id: 161, dropoff_zone_id: 236}
+    expect:
+      rows:
+        - {trip_id: ok,        is_valid: true,  dq_issue: null}
+        - {trip_id: old,       is_valid: false, dq_issue: pickup_outside_file_month}
+        - {trip_id: backwards, is_valid: false, dq_issue: non_positive_duration}
+        - {trip_id: forever,   is_valid: false, dq_issue: duration_over_6h}
+        - {trip_id: nowhere,   is_valid: false, dq_issue: non_positive_distance}
+        - {trip_id: refund,    is_valid: false, dq_issue: negative_amount}

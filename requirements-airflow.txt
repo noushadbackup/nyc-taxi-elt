@@ -1,0 +1,6 @@
+# Installed into the Airflow image (extract/load task dependencies).
+duckdb==1.5.6
+pyarrow>=15
+requests>=2.31
+google-cloud-bigquery>=3.20
+google-cloud-storage>=2.16

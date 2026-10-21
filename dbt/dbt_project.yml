@@ -1,0 +1,45 @@
+name: nyc_taxi
+version: "1.0.0"
+config-version: 2
+profile: nyc_taxi
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages", "logs"]
+
+vars:
+  # Month being processed, e.g. '2024-01-01'. Set by Airflow for each run.
+  # When empty, incremental models pick up any month newer than what they hold.
+  month: null
+  # Trips flagged invalid above this share of a month fail the build.
+  max_invalid_trip_ratio: 0.10
+
+models:
+  nyc_taxi:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  nyc_taxi:
+    +schema: reference
+    taxi_zone_lookup:
+      +column_types:
+        LocationID: "{{ 'int64' if target.type == 'bigquery' else 'integer' }}"
+        Borough: "{{ 'string' if target.type == 'bigquery' else 'varchar' }}"
+        Zone: "{{ 'string' if target.type == 'bigquery' else 'varchar' }}"
+        service_zone: "{{ 'string' if target.type == 'bigquery' else 'varchar' }}"
+
+tests:
+  nyc_taxi:
+    +store_failures: true
+    +schema: dq_failures

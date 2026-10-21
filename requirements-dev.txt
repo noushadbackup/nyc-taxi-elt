@@ -1,0 +1,4 @@
+-r requirements-airflow.txt
+-r requirements-dbt.txt
+pytest>=8
+ruff>=0.6

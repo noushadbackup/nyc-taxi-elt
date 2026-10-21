@@ -1,0 +1,21 @@
+nyc_taxi:
+  target: "{{ env_var('DBT_TARGET', 'duckdb') }}"
+  outputs:
+    # Local / CI: a single DuckDB file, no cloud account needed.
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../data/warehouse.duckdb') }}"
+      threads: 4
+
+    # Production: BigQuery, authenticated with a service account key file
+    # (or Application Default Credentials when GOOGLE_APPLICATION_CREDENTIALS is unset).
+    bigquery:
+      type: bigquery
+      method: "{{ 'service-account' if env_var('GOOGLE_APPLICATION_CREDENTIALS', '') else 'oauth' }}"
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS', '') }}"
+      project: "{{ env_var('GCP_PROJECT_ID', 'unset') }}"
+      dataset: "{{ env_var('BQ_DBT_DATASET', 'nyc_taxi') }}"
+      location: "{{ env_var('BQ_LOCATION', 'US') }}"
+      threads: 4
+      job_execution_timeout_seconds: 600
+      maximum_bytes_billed: 20000000000  # 20 GB guardrail per query

@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw layer, written by the Airflow extract/load task (src/taxi_elt/load.py).
+    schema: "{{ env_var('BQ_RAW_DATASET', 'raw') }}"
+    tables:
+      - name: yellow_trips
+        description: >
+          NYC TLC yellow taxi trip records, one row per trip as published, projected
+          onto a fixed schema. Partitioned by source_month (one partition per file).
+        config:
+          loaded_at_field: _loaded_at
+          freshness:
+            warn_after: {count: 45, period: day}
+            error_after: {count: 75, period: day}
+        columns:
+          - name: source_month
+            description: Month of the TLC file the row came from.
+            data_tests:
+              - not_null
+          - name: tpep_pickup_datetime
+            data_tests:
+              - not_null

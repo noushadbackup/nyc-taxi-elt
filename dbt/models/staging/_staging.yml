@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_yellow_trips
+    description: Yellow taxi trips, renamed, typed and de-duplicated. No rows are filtered out here.
+    columns:
+      - name: trip_id
+        description: Surrogate key, a hash of the fields that identify a trip.
+        data_tests:
+          - unique
+          - not_null
+      - name: pickup_at
+        data_tests:
+          - not_null
+      - name: source_month
+        data_tests:
+          - not_null
+
+  - name: stg_taxi_zones
+    description: TLC taxi zones (265 zones plus two "unknown" codes).
+    columns:
+      - name: zone_id
+        data_tests:
+          - unique
+          - not_null
+      - name: borough
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Bronx', 'Brooklyn', 'EWR', 'Manhattan', 'Queens', 'Staten Island', 'Unknown', 'N/A']

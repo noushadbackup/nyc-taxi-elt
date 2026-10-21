@@ -1,0 +1,10 @@
+version: 2
+
+seeds:
+  - name: taxi_zone_lookup
+    description: TLC taxi zone lookup table, from the TLC website.
+  - name: payment_types
+    description: Payment type codes from the TLC yellow trip data dictionary.
+    columns:
+      - name: payment_type_id
+        data_tests: [unique, not_null]
