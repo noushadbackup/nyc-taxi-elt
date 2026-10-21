@@ -1,6 +1,6 @@
 # NYC Taxi ELT Warehouse
 
-[![ci](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
+[![ci](https://github.com/noushadbackup/nyc-taxi-elt/actions/workflows/ci.yml/badge.svg)](https://github.com/noushadbackup/nyc-taxi-elt/actions/workflows/ci.yml)
 
 An end-to-end, batch ELT pipeline that turns the public [NYC TLC yellow taxi trip records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) (~3M trips a month) into a tested, analytics-ready warehouse on **BigQuery**.
 
