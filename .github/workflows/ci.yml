@@ -15,8 +15,8 @@ jobs:
   python:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -32,8 +32,8 @@ jobs:
       DBT_TARGET: duckdb
       DUCKDB_PATH: ${{ github.workspace }}/data/warehouse.duckdb
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -52,7 +52,7 @@ jobs:
   dag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: DAG imports cleanly in the Airflow image
         run: |
           docker build -t nyc-taxi-airflow .
